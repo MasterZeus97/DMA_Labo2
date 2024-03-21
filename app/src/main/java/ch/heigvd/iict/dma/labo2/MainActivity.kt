@@ -15,6 +15,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import ch.heigvd.iict.dma.labo2.databinding.ActivityMainBinding
+import ch.heigvd.iict.dma.labo2.models.PersistentBeacon
 import org.altbeacon.beacon.Beacon
 import org.altbeacon.beacon.BeaconManager
 import org.altbeacon.beacon.BeaconParser
@@ -115,7 +116,13 @@ class MainActivity : AppCompatActivity() {
         }
     val rangingObserver = Observer<Collection<Beacon>> { beacons ->
         Log.d("TAG", "Ranged: ${beacons.count()} beacons")
+        var beaconList : MutableList<PersistentBeacon> = mutableListOf()
+
         for (beacon: Beacon in beacons) {
+            beaconList.add(PersistentBeacon.convertFromBeacon(beacon))
+        }
+
+        for (beacon: PersistentBeacon in beaconList) {
             Log.d("TAG", "$beacon about ${beacon.distance} meters away")
         }
     }

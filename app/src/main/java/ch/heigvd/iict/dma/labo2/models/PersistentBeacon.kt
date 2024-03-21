@@ -2,6 +2,7 @@ package ch.heigvd.iict.dma.labo2.models
 
 import androidx.recyclerview.widget.DiffUtil
 import java.util.*
+import org.altbeacon.beacon.Beacon
 
 /*
  *  N'hésitez pas à ajouter des attributs ou des méthodes à cette classe
@@ -17,6 +18,11 @@ data class PersistentBeacon(
 
     companion object {
         private var nextId = 0L
+
+        fun convertFromBeacon(beacon : Beacon): PersistentBeacon {
+            return PersistentBeacon(major = beacon.id2.toInt(), minor = beacon.id3.toInt(), uuid = beacon.id1.toUuid(),
+                rssi = beacon.rssi, txPower = beacon.txPower, distance = beacon.distance)
+        }
     }
 
 }
