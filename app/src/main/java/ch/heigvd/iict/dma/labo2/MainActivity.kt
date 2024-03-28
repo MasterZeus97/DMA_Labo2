@@ -118,7 +118,10 @@ class MainActivity : AppCompatActivity() {
         var beaconList : MutableList<PersistentBeacon> = mutableListOf()
 
         for (beacon: Beacon in beacons) {
-            beaconList.add(PersistentBeacon.convertFromBeacon(beacon))
+            val pBeacon = PersistentBeacon.convertFromBeacon(beacon)
+
+            if(pBeacon.minor == 46 || pBeacon.minor == 36 || pBeacon.minor == 23)
+                beaconList.add(pBeacon)
         }
 
         beaconsViewModel.setNearbyBeacons(beaconList)
