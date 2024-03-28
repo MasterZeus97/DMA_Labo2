@@ -124,6 +124,10 @@ class MainActivity : AppCompatActivity() {
                 beaconList.add(pBeacon)
         }
 
+        beaconList.sortBy {
+            it.distance
+        }
+
         beaconsViewModel.setNearbyBeacons(beaconList)
 
         for (beacon: PersistentBeacon in beaconList) {
