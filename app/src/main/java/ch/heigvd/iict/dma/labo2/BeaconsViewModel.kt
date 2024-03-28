@@ -35,4 +35,8 @@ class BeaconsViewModel : ViewModel() {
     private val _closestBeacon = MutableLiveData<PersistentBeacon?>(null)
     val closestBeacon : LiveData<PersistentBeacon?> get() = _closestBeacon
 
+    fun setNearbyBeacons(beacons : MutableList<PersistentBeacon>){
+        _nearbyBeacons.value = beacons
+    }
+
 }

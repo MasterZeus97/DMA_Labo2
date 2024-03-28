@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         // update views
         beaconsViewModel.closestBeacon.observe(this) {beacon ->
             if(beacon != null) {
-                binding.location.text = "TODO"
+                binding.location.text = beacon.minor.toString()
             } else {
                 binding.location.text = getString(R.string.no_beacons)
             }
@@ -92,28 +92,27 @@ class MainActivity : AppCompatActivity() {
         )
         beaconManager.getRegionViewModel(region).rangedBeacons.observe(this, rangingObserver)
         beaconManager.startRangingBeacons(region)
-
     }
 
     private val requestBeaconsPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+        val isBLEScanGranted =  if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                                    permissions.getOrDefault(Manifest.permission.BLUETOOTH_SCAN, false)
+                                else
+                                    true
+        val isFineLocationGranted = permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
+        val isCoarseLocationGranted = permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)
 
-            val isBLEScanGranted =  if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                                        permissions.getOrDefault(Manifest.permission.BLUETOOTH_SCAN, false)
-                                    else
-                                        true
-            val isFineLocationGranted = permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
-            val isCoarseLocationGranted = permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)
-
-            if (isBLEScanGranted && (isFineLocationGranted || isCoarseLocationGranted) ) {
-                // Permission is granted. Continue the action
-                permissionsGranted.postValue(true)
-            }
-            else {
-                // Explain to the user that the feature is unavailable
-                Toast.makeText(this, R.string.ibeacon_feature_unavailable, Toast.LENGTH_SHORT).show()
-                permissionsGranted.postValue(false)
-            }
+        if (isBLEScanGranted && (isFineLocationGranted || isCoarseLocationGranted) ) {
+            // Permission is granted. Continue the action
+            permissionsGranted.postValue(true)
         }
+        else {
+            // Explain to the user that the feature is unavailable
+            Toast.makeText(this, R.string.ibeacon_feature_unavailable, Toast.LENGTH_SHORT).show()
+            permissionsGranted.postValue(false)
+        }
+    }
+
     val rangingObserver = Observer<Collection<Beacon>> { beacons ->
         Log.d("TAG", "Ranged: ${beacons.count()} beacons")
         var beaconList : MutableList<PersistentBeacon> = mutableListOf()
@@ -121,6 +120,8 @@ class MainActivity : AppCompatActivity() {
         for (beacon: Beacon in beacons) {
             beaconList.add(PersistentBeacon.convertFromBeacon(beacon))
         }
+
+        beaconsViewModel.setNearbyBeacons(beaconList)
 
         for (beacon: PersistentBeacon in beaconList) {
             Log.d("TAG", "$beacon about ${beacon.distance} meters away")
