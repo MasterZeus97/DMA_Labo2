@@ -19,7 +19,6 @@ import ch.heigvd.iict.dma.labo2.models.PersistentBeacon
 import org.altbeacon.beacon.Beacon
 import org.altbeacon.beacon.BeaconManager
 import org.altbeacon.beacon.BeaconParser
-import org.altbeacon.beacon.MonitorNotifier
 import org.altbeacon.beacon.Region
 
 
@@ -30,6 +29,12 @@ class MainActivity : AppCompatActivity() {
     private val beaconsViewModel : BeaconsViewModel by viewModels()
 
     private val permissionsGranted = MutableLiveData(false)
+
+    private var beaconToNameMap : Map<Int, String> = mapOf(
+        46 to "Salle de réunion",
+        36 to "Salle de cours",
+        23 to "Salle de TP"
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,7 +71,7 @@ class MainActivity : AppCompatActivity() {
         // update views
         beaconsViewModel.closestBeacon.observe(this) {beacon ->
             if(beacon != null) {
-                binding.location.text = beacon.minor.toString()
+                binding.location.text = beaconToNameMap[beacon.minor] //beacon.minor.toString()
             } else {
                 binding.location.text = getString(R.string.no_beacons)
             }
@@ -129,6 +134,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         beaconsViewModel.setNearbyBeacons(beaconList)
+
+        beaconsViewModel.setPLaceByBeacons(beaconList.firstOrNull())
 
         for (beacon: PersistentBeacon in beaconList) {
             Log.d("TAG", "$beacon about ${beacon.distance} meters away")
