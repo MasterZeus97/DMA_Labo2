@@ -32,3 +32,28 @@ Pour le faire fonctionner, il faut mettre en place un BroadCastReceiver pour la 
 Une des valeurs envoyées dans les annonces est la distance. La distance est une estimation basée sur la force du signal bluethoot reçue du beacon au smartphone. La fiabilité est très mauvaise. Jusqu'à deux mètres, les données sont fiables de plus ou moins un mètre tandis qu'à vingt mètres, sont fiables à plus ou moins 10 à 40 mètres.
 ```
 
+### 2.1.1 Comment pouvons-nous déterminer notre position ? Est-ce uniquement basé sur notion de
+proximité étudiée dans la question 1.1.3, selon vous est-ce que d’autres paramètres peuvent
+être pertinents ?
+
+```
+Si on a une seule balise, nous n'avons pas vraiment d'autres choix que de soit calculer la distance avec la puissance du signal, soit utiliser la valeur de distance envoyée par la balise. 
+Si nous avons 3 balises ou plus, il serait possible de faire une trilatération afin de pouvoir se repérer dans un plan. Cependant, cela ne serait pas excessivement précis, puisque chaque obstacle poserait problème en modifiant la puissance du signal.
+```
+
+### 2.1.2 Les iBeacons sont conçus pour permettre du positionnement en intérieur. D’après l’expérience que vous avez acquise sur cette technologie dans ce laboratoire, quels sont les cas d’utilisation pour lesquels les iBeacons sont pleinement adaptés (minimum deux) ? Est-ce que vous voyez des limitations qui rendraient difficile leur utilisation pour certaines applications ?
+
+```
+Nous avons pensé à deux cas d'utilisations. 
+
+Le premier serait de permettre à une personne de s'orienter dans une manifestation (festival, salon, forum) à l'aide d'une application. Des iBeacon seraient disposés, par exemple dans le cas du salon de l'auto, à chaque stands. Ainsi, l'app pourrait calculer la position de l'utilisateur dans le salon, et lui indiquer un chemin vers un autre stand.
+
+La seconde façon de les utiliser serait dans une exposition. Un iBeacon serait placé à chaque point d'intérêt (une ouvre d'art, une voiture, etc.). Lorsqu'une personne dotée de l'app de l'exposition s'approcherait, l'app lui afficherait des informations à propos du point d'intérêt. 
+
+La localisation à l'aide des iBeacon possède certain désaventages. Le premier est que, puisque la distance est calculée à l'aide de la force du signal, si un obstacle se tient entre nous et la balise, la mesure de distance risque d'être totalement faussée. Par exemple, si on reprend la seconde façon de les utiliser, si les oeuvres (et les iBeacon) sont enfermés dans des boites en verre par exemple, on risque de ne pas détecter l'ibeacon comme étant proche de nous. 
+
+Un autre problème est la précision des iBeacon. Ils ne sont en effet pas très précis et ne peuvent donc pas être utilisé pour obtenir un positionnement exact.
+
+Enfin, il nous a semblé que les smartphone ne réagissaient pas tous de manière similaire aux balises, n'obtenant pas toujours la même distance. Cela rend compliqué l'application systématique d'une librairie.
+```
+

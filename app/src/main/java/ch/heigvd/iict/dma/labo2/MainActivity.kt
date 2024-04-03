@@ -133,6 +133,8 @@ class MainActivity : AppCompatActivity() {
             it.distance
         }
 
+        Log.i("TOG", beaconList.toString())
+
         beaconsViewModel.setNearbyBeacons(beaconList)
 
         beaconsViewModel.setPLaceByBeacons(beaconList.firstOrNull())
