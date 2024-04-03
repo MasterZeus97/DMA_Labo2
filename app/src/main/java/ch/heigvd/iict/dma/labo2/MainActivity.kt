@@ -30,6 +30,8 @@ class MainActivity : AppCompatActivity() {
 
     private val permissionsGranted = MutableLiveData(false)
 
+    private val beaconMap  = mutableMapOf<Int, PersistentBeacon>()
+
     private var beaconToNameMap : Map<Int, String> = mapOf(
         46 to "Salle de réunion",
         36 to "Salle de cours",
@@ -126,20 +128,30 @@ class MainActivity : AppCompatActivity() {
             val pBeacon = PersistentBeacon.convertFromBeacon(beacon)
 
             if(pBeacon.minor == 46 || pBeacon.minor == 36 || pBeacon.minor == 23)
-                beaconList.add(pBeacon)
+                beaconMap[pBeacon.minor] = pBeacon
         }
+
+        beaconList = beaconMap.values.toMutableList()
 
         beaconList.sortBy {
             it.distance
         }
 
-        Log.i("TOG", beaconList.toString())
-
         beaconsViewModel.setNearbyBeacons(beaconList)
 
-        beaconsViewModel.setPLaceByBeacons(beaconList.firstOrNull())
+        beaconsViewModel.setPlaceByBeacons(beaconList.firstOrNull())
+
+        beaconMap.forEach { value ->
+
+            value.value.count--
+            if(value.value.count == 0)
+                beaconMap.remove(value.key)
+        }
+
+        Log.i("TEG", beaconMap.toString())
 
         for (beacon: PersistentBeacon in beaconList) {
+
             Log.d("TAG", "$beacon about ${beacon.distance} meters away")
         }
     }

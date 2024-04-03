@@ -39,7 +39,7 @@ class BeaconsViewModel : ViewModel() {
         _nearbyBeacons.value = beacons
     }
 
-    fun setPLaceByBeacons(beacon: PersistentBeacon?){
+    fun setPlaceByBeacons(beacon: PersistentBeacon?){
         _closestBeacon.value = beacon
     }
 

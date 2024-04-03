@@ -14,14 +14,15 @@ data class PersistentBeacon(
     var uuid: UUID,
     var rssi : Int,
     var txPower : Int,
-    var distance : Double) {
+    var distance : Double,
+    var count : Int) {
 
     companion object {
         private var nextId = 0L
 
         fun convertFromBeacon(beacon : Beacon): PersistentBeacon {
             return PersistentBeacon(major = beacon.id2.toInt(), minor = beacon.id3.toInt(), uuid = beacon.id1.toUuid(),
-                rssi = beacon.rssi, txPower = beacon.txPower, distance = beacon.distance)
+                rssi = beacon.rssi, txPower = beacon.txPower, distance = beacon.distance, count = 20)
         }
     }
 
