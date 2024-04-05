@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
 }
 ```
 
-// TODO JOEL
+Afin de récupérer la liste des balises à portée, nous avons utilisé la librairie externe "android-beacon-library". Avec cela nous pouvons créer un manager de balises qui appellera une fonction de callback tout les x temps. Les balises retournées sont d'un type propre à la libraire, il nous est alors nécessaire de les convertir dans notre propre type de balise "PersistentBeacon" (fonction de conversion visible plus bas). Une fois convertis, nous avions plus qu'à envoyer ces données à l'affichage. 
 
 Pour la partie permettant de se localiser, nous avons ajouté une map `beaconToNameMap` qui nous permet de lié les numéros des balises qui nous avaient été fournie à un nom de salle. Ainsi, il nous suffit d'afficher le text lié à la balise la plus proche de nous.
 
