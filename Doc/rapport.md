@@ -2,6 +2,134 @@
 
 Loris Marzullo - Thibault Seem - Joel Matias
 
+## Objectifs : Lister les balises et déterminer sa position
+
+La majorité de nos changements ont eu lieu dans le fichier `MainActivity.kt`.
+
+```kotlin
+
+class MainActivity : AppCompatActivity() {
+
+    //...
+    
+    private val beaconMap  = mutableMapOf<Int, PersistentBeacon>()
+
+    private var beaconToNameMap : Map<Int, String> = mapOf(
+        46 to "Salle de réunion",
+        36 to "Salle de cours",
+        23 to "Salle de TP"
+    )
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        
+        //...
+
+        val beaconManager =  BeaconManager.getInstanceForApplication(this)
+        val region = Region("all-beacons-region", null, null, null)
+
+        beaconManager.beaconParsers.add(
+            BeaconParser()
+                .setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24")
+        )
+        beaconManager.getRegionViewModel(region).rangedBeacons.observe(this, rangingObserver)
+        beaconManager.startRangingBeacons(region)
+    }
+
+    //...
+    
+    /*
+        Observer for ranging beacons:
+        This observer is called every time beacons are detected in the region. The beacons variable contains a list of all beacons detected, sorted by distance. The closest beacon is then used to determine the place, which is displayed in the UI.
+    */
+    val rangingObserver = Observer<Collection<Beacon>> { beacons ->
+        Log.d("TAG", "Ranged: ${beacons.count()} beacons")
+        var beaconList : MutableList<PersistentBeacon> = mutableListOf()
+
+        for (beacon: Beacon in beacons) {
+            val pBeacon = PersistentBeacon.convertFromBeacon(beacon)
+
+            if(pBeacon.minor == 46 || pBeacon.minor == 36 || pBeacon.minor == 23)
+                beaconMap[pBeacon.minor] = pBeacon
+        }
+
+        beaconList = beaconMap.values.toMutableList()
+
+        beaconList.sortBy {
+            it.distance
+        }
+
+        beaconsViewModel.setNearbyBeacons(beaconList)
+
+        beaconsViewModel.setPlaceByBeacons(beaconList.firstOrNull())
+
+        // Remove beacons that are not detected anymore
+        beaconMap.forEach { value ->
+
+            value.value.count--
+            if(value.value.count == 0)
+                beaconMap.remove(value.key)
+        }
+
+        for (beacon: PersistentBeacon in beaconList) {
+
+            Log.d("TAG", "$beacon about ${beacon.distance} meters away")
+        }
+    }
+}
+```
+
+// TODO JOEL
+
+Pour la partie permettant de se localiser, nous avons ajouté une map `beaconToNameMap` qui nous permet de lié les numéros des balises qui nous avaient été fournie à un nom de salle. Ainsi, il nous suffit d'afficher le text lié à la balise la plus proche de nous.
+
+
+
+Nous avons également ajouté 2 méthodes dans `BeaconsViewModel.kt` permettant de mettre les LiveData à jour.
+
+```kotlin
+class BeaconsViewModel : ViewModel() {
+
+    //...
+    
+    fun setNearbyBeacons(beacons : MutableList<PersistentBeacon>){
+        _nearbyBeacons.value = beacons
+    }
+
+    fun setPlaceByBeacons(beacon: PersistentBeacon?){
+        _closestBeacon.value = beacon
+    }
+}
+```
+
+Ces deux méthodes servent uniquement à copier la liste de beacons et le beacons le plus proches dans les LiveData utilisées pour l'affichage.
+
+Enfin, nous avons ajouté deux choses dans `PersistantBeacon.kt`. La première est une méthode permettant de convertir un objet de type `Beacon` en un `PersistantBeacon` et un compteur de temps.
+
+```kotlin
+data class PersistentBeacon(
+    var id : Long = nextId++,
+    var major: Int,
+    var minor: Int,
+    var uuid: UUID,
+    var rssi : Int,
+    var txPower : Int,
+    var distance : Double,
+    var count : Int) {
+
+    companion object {
+        private var nextId = 0L
+
+        fun convertFromBeacon(beacon : Beacon): PersistentBeacon {
+            return PersistentBeacon(major = beacon.id2.toInt(), minor = beacon.id3.toInt(), uuid = beacon.id1.toUuid(),
+                rssi = beacon.rssi, txPower = beacon.txPower, distance = beacon.distance, count = 20)
+        }
+    }
+
+}
+```
+
+Le compteur `count` nous permet de savoir combien de fois l'objet a été affiché sans être rafraichi.
+
 ## 1.1. Questions d’approfondissement
 
 ### 1.1.1 Est-ce que toutes les balises à proximité sont présentes dans toutes les annonces de la librairie ? Que faut-il mettre en place pour permettre de « lisser »  les annonces et ne pas perdre momentanément certaines balises ?
@@ -9,8 +137,7 @@ Loris Marzullo - Thibault Seem - Joel Matias
 ```
 Non, elles ne sont pas toujours toutes affichées. On peut présumer que la librairie garde en mémoire les signaux reçus pendant un temps T, et tout les temps T il nous donne la liste desdits signaux. Ce qui peut provoquer la disparition d'une des balises de la liste qui n'a pas envoyé de signal (ou que le signal n'a pas été reçu) durant cette période fixe.
 
-Afin de régler ce problème, au lieu de remplacer la liste existante à chaque nouvel appel du callback, nous pouvons mettre à jour la liste avec les nouveaux signaux et mettre à jour les informations de ceux existants si ceux-ci sont différents.
-
+Afin de régler ce problème, nous pouvons ajouter un tempon qui servira à savoir depuis combien de temps la balise n'a pas été mise à jour. Chaque fois qu'une balise sera détectée, soit son timer sera réinitialisé dans cette liste, soit elle sera ajoutée à cette liste. Lorsque le timer d'une de ces 
 
 ```
 

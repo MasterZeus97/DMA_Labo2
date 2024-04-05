@@ -120,6 +120,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /*
+        Observer for ranging beacons:
+        This observer is called every time beacons are detected in the region. The beacons variable contains a list of all beacons detected, sorted by distance. The closest beacon is then used to determine the place, which is displayed in the UI.
+    */
     val rangingObserver = Observer<Collection<Beacon>> { beacons ->
         Log.d("TAG", "Ranged: ${beacons.count()} beacons")
         var beaconList : MutableList<PersistentBeacon> = mutableListOf()
@@ -141,14 +145,13 @@ class MainActivity : AppCompatActivity() {
 
         beaconsViewModel.setPlaceByBeacons(beaconList.firstOrNull())
 
+        // Remove beacons that are not detected anymore
         beaconMap.forEach { value ->
 
             value.value.count--
             if(value.value.count == 0)
                 beaconMap.remove(value.key)
         }
-
-        Log.i("TEG", beaconMap.toString())
 
         for (beacon: PersistentBeacon in beaconList) {
 
